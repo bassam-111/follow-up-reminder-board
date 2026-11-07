@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Follow-Up Reminder Board</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main>
+    <h1>Follow-Up Reminder Board</h1>
+    <p class="today">Today: {{ today }} &nbsp;|&nbsp; <a href="{{ url_for('export_csv') }}">Export CSV</a></p>
+
+    <section class="stats">
+      <span class="stat overdue">Overdue: {{ counts['overdue'] }}</span>
+      <span class="stat due-today">Due today: {{ counts['due-today'] }}</span>
+      <span class="stat upcoming">Upcoming: {{ counts['upcoming'] }}</span>
+      <span class="stat closed">Closed: {{ counts['closed'] }}</span>
+    </section>
+
+    <table>
+      <thead>
+        <tr><th>Contact</th><th>Company</th><th>Topic</th><th>Next follow-up</th><th>Status</th><th>Bucket</th><th>Change status</th></tr>
+      </thead>
+      <tbody>
+        {% for item, bucket in items %}
+        <tr class="{{ bucket }}">
+          <td>{{ item.contact }}</td>
+          <td>{{ item.company }}</td>
+          <td>{{ item.topic }}</td>
+          <td>{{ item.next_followup }}</td>
+          <td>{{ item.status }}</td>
+          <td>{{ bucket }}</td>
+          <td>
+            {% for s in statuses %}
+            <form method="post" action="{{ url_for('set_status', item_id=item.id, status=s) }}">
+              <button type="submit" {% if item.status == s %}disabled{% endif %}>{{ s }}</button>
+            </form>
+            {% endfor %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <h2>Add a follow-up</h2>
+    <form method="post" action="{{ url_for('add') }}" class="add-form">
+      <label>Contact <input name="contact" required></label>
+      <label>Company <input name="company"></label>
+      <label>Topic <input name="topic" required></label>
+      <label>Next follow-up <input type="date" name="next_followup" required></label>
+      <button type="submit">Add</button>
+    </form>
+  </main>
+</body>
+</html>
